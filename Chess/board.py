@@ -1,183 +1,269 @@
-# import pygame as pg
+import os
 from .King import King
 from .Queen import Queen
 from .Bishop import Bishop
 from .Knight import Knight
 from .Rook import Rook
 from .Pawn import Pawn
-from .Ai import get_best_move
 from utils import Label
 
 
 class Board:
-    def __init__(self, width, height):
+    def __init__(self):
         self.board = [
             [
-                Rook('black', 0, 0),
-                Knight('black', 0, 1),
-                Bishop('black', 0, 2),
-                Queen('black', 0, 3),
-                King('black', 0, 4),
-                Bishop('black', 0, 5),
-                Knight('black', 0, 6),
-                Rook('black', 0, 7),
+                Rook('b', 0, 0),
+                Knight('b', 0, 1),
+                Bishop('b', 0, 2),
+                Queen('b', 0, 3),
+                King('b', 0, 4),
+                Bishop('b', 0, 5),
+                Knight('b', 0, 6),
+                Rook('b', 0, 7),
             ],
             [
-                Pawn('black', 1, 0),
-                Pawn('black', 1, 1),
-                Pawn('black', 1, 2),
-                Pawn('black', 1, 3),
-                Pawn('black', 1, 4),
-                Pawn('black', 1, 5),
-                Pawn('black', 1, 6),
-                Pawn('black', 1, 7)
+                Pawn('b', 1, 0),
+                Pawn('b', 1, 1),
+                Pawn('b', 1, 2),
+                Pawn('b', 1, 3),
+                Pawn('b', 1, 4),
+                Pawn('b', 1, 5),
+                Pawn('b', 1, 6),
+                Pawn('b', 1, 7)
             ],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
             [
-                Pawn('white', 6, 0),
-                Pawn('white', 6, 1),
-                Pawn('white', 6, 2),
-                Pawn('white', 6, 3),
-                Pawn('white', 6, 4),
-                Pawn('white', 6, 5),
-                Pawn('white', 6, 6),
-                Pawn('white', 6, 7)
+                Pawn('w', 6, 0),
+                Pawn('w', 6, 1),
+                Pawn('w', 6, 2),
+                Pawn('w', 6, 3),
+                Pawn('w', 6, 4),
+                Pawn('w', 6, 5),
+                Pawn('w', 6, 6),
+                Pawn('w', 6, 7)
             ],
             [
-                Rook('white', 7, 0),
-                Knight('white', 7, 1),
-                Bishop('white', 7, 2),
-                Queen('white', 7, 3),
-                King('white', 7, 4),
-                Bishop('white', 7, 5),
-                Knight('white', 7, 6),
-                Rook('white', 7, 7),
+                Rook('w', 7, 0),
+                Knight('w', 7, 1),
+                Bishop('w', 7, 2),
+                Queen('w', 7, 3),
+                King('w', 7, 4),
+                Bishop('w', 7, 5),
+                Knight('w', 7, 6),
+                Rook('w', 7, 7),
             ],
         ]
 
-        self.block_width = width // 8
-        self.block_height = height // 8
+        self.selected = None  # Stores Selected piece
 
-        self.selected_piece = None
+        self.turn = 1  # 1 means its white's turn
 
-        # 1 means its white's turn
-        self.turn = 1
+        self.king = [self.board[0][4], self.board[7][4]]  # To check for "Checks" after every move
 
-        # To check for "Checks" after every move
-        self.king = [self.board[0][4], self.board[7][4]]
-
-        self.checked = False
+        self.check = False
         self.game_over = False
 
-        self.message = Label('')
-        self.message_victory = Label('')
-        self.message_victory.config(color=(255, 255, 255), font_size=32)
-        self.message.config(color=(255, 255, 255), font_size=48)
+        self.message1 = Label('')  # For check messages
+        self.message1.config(color=(255, 255, 255), font_size=48)
 
-    def clicked(self, mx, my, ai=False):
+        self.message2 = Label('')  # For Victory messages
+        self.message2.config(color=(255, 255, 255), font_size=32)
 
-        if self.game_over:
-            return False
+    def get_moves(self, color):
+        """
+        Returns a dict of all moves possible of pieces of given color
+        :param color: 'b' or 'w' (str)
+        :return: dictionary of all moves for given color
+        """
 
-        color = ['black', 'white']
-
-        if not ai:
-            j, i = mx // 85, my // 85
-        else:
-            j, i = mx, my
-
-        if self.selected_piece is None and not ai:
-            if not self.board[i][j]:
-                return False
-
-            if self.board[i][j].color == color[self.turn]:
-                self.board[i][j].select(j, i)
-
-                if self.board[i][j].selected:
-                    self.selected_piece = (i, j)
-                else:
-                    self.selected_piece = None
-            return True
-        else:
-            si, sj = self.selected_piece
-            # print(self.board[si][sj])
-            # Storing the selected spot, if illegal move happens than revert back
-            selected_spot = self.board[i][j]
-
-            self.selected_piece = None
-            self.board[si][sj].select(j, i)  # unselect the selected piece
-
-            if self.checked:
-                if self.board[si][sj].move(self.board, i, j):
-                    # If this moves counter's Check, then perform it else revert back
-                    if not self.king[self.turn].is_check(self.board):
-                        self.turn ^= 1
-                        self.message.change_text('')
-                        self.checked = False
-
-                        return True
-                    else:
-                        self.board[i][j].move(self.board, si, sj, reverse=True)
-                        self.board[i][j] = selected_spot
-
-            else:
-                if self.board[si][sj].move(self.board, i, j):
-                    # If the current moves doesn't give check to our king, then perform it else revert back
-                    if not self.king[self.turn].is_check(self.board):
-                        self.turn ^= 1
-                        self.message.change_text('')
-                        self.message_victory.change_text('')
-                        # Check if this move gives check to opponent's king
-                        if self.king[self.turn].is_check(self.board):
-                            self.checked = True
-                            # If checkmate then game over else continue
-                            if self.is_checkmate():
-                                # print('Checkmate')
-                                self.message.change_text('Checkmate')
-                                self.message_victory.change_text(f'{color[self.turn ^ 1].capitalize()} Wins')
-                                self.game_over = True
-
-                            self.message.change_text('Check')
-                        return True
-                    else:
-                        self.board[i][j].move(self.board, si, sj, reverse=True)
-                        self.board[i][j] = selected_spot
-            return False
-
-    def is_checkmate(self):
-        # Make It more efficient
-
-        # If either of the king is not checked then simply return else check for checkmate
-        if not self.checked:
-            return
-
-        color = ['black', 'white']
+        possible_moves = dict()
 
         for i in range(8):
             for j in range(8):
-                # For every defending piece check if it could counter check
-                if self.board[i][j] and self.board[i][j].color == color[self.turn]:
-                    all_moves = list(self.board[i][j].get_possible_moves(self.board))
+                if self.board[i][j] and self.board[i][j].color == color:
+                    possible_moves[(i, j)] = self.board[i][j].get_moves(self.board)
 
-                    for x, y in all_moves:
-                        selected_spot = self.board[x][y]
+        return possible_moves
 
-                        if self.board[i][j].move(self.board, x, y):
-                            if not self.king[self.turn].is_check(self.board):
-                                self.board[x][y].move(self.board, i, j, reverse=True)
-                                self.board[x][y] = selected_spot
-                                return False
+    def select(self, mx, my):
+        """
+        Select a current player's piece
+        If a piece is already selected then move the selected piece to (my, mx) by calling move method
+        :param mx: int
+        :param my: int
+        :return: None
+        """
+        if not self.is_in_bounds(mx, my) or self.game_over:
+            return
 
-                            self.board[x][y].move(self.board, i, j, reverse=True)
-                            self.board[x][y] = selected_spot
+        if not self.selected or self.selected == (my, mx):
+            if self.is_player_piece((my, mx)):
+                self.board[my][mx].select()
+                if self.board[my][mx].selected:
+                    self.selected = (my, mx)
+                else:
+                    self.selected = None
+        else:
+            if self.is_move_possible(self.selected, (my, mx)):
+                self.message1.change_text('')
+                self.message2.change_text('')
+
+                self.move(self.selected, (my, mx))
+                self.print_board()
+
+                # Unselect the moved piece
+                self.board[my][mx].select()
+                self.selected = None
+
+    def is_move_possible(self, source, dest):
+        """
+        Check if possible to move piece from source to dest
+        :param source: Coordinates of source piece (int, int)
+        :param dest: Coordinates of dest piece (int, int)
+        :return: bool
+        """
+        sy, sx = source
+        dy, dx = dest
+
+        source_piece = self.board[sy][sx]
+        dest_piece = self.board[dy][dx]
+
+        moves = self.board[sy][sx].get_moves(self.board)
+
+        if (dy, dx) not in moves:
+            return False
+
+        source_piece.move_position(dx, dy)
+        self.board[dy][dx], self.board[sy][sx] = source_piece, None
+
+        is_valid_move = True
+        if self.in_check(self.turn):
+            is_valid_move = False
+
+        source_piece.move_position(sx, sy)
+        self.board[dy][dx], self.board[sy][sx] = dest_piece, source_piece
+
+        return is_valid_move
+
+    def move(self, source, dest):
+        """
+        Moves a piece from source to dest
+        :param source: Coordinates of source piece (int, int)
+        :param dest: Coordinates of dest piece (int, int)
+        :return: Captured Piece
+        """
+
+        self.check = False
+
+        sy, sx = source
+        dy, dx = dest
+
+        source_piece = self.board[sy][sx]
+        dest_piece = self.board[dy][dx]
+
+        if dest_piece:
+            pass
+
+        source_piece.move_position(dx, dy)
+        self.board[dy][dx], self.board[sy][sx] = source_piece, None
+
+        self.turn ^= 1
+
+        if self.in_check(self.turn):
+            self.check = True
+            if self.in_checkmate():
+                self.game_over = True
+
+        return dest_piece
+
+    def is_player_piece(self, square):
+        """
+        Checks if the square contains the current player's piece
+        :param square: Coordinates for the piece (int, int)
+        :return: bool
+        """
+        my, mx = square
+
+        if not self.board[my][mx]:
+            return False
+
+        color = ['b', 'w']
+
+        return color[self.turn] == self.board[my][mx].color
+
+    def in_check(self, turn):
+        """
+        Checks if the given turn's king is in check
+        :param turn: 1 or 0 (int)
+        :return: bool
+        """
+
+        return self.king[turn].is_check(self.board)
+
+    def in_checkmate(self):
+        """
+        Checks if the the opponent's king is in checkmate after current move
+        :return: bool
+        """
+        color = ['b', 'w']
+
+        moves = self.get_moves(color[self.turn])
+        for sy, sx in moves:
+            source_piece = self.board[sy][sx]
+            for dy, dx in moves[(sy, sx)]:
+                valid_move = False
+                dest_piece = self.board[dy][dx]
+
+                source_piece.move_position(dx, dy)
+                self.board[dy][dx], self.board[sy][sx] = source_piece, None
+
+                if not self.in_check(self.turn):
+                    valid_move = True
+
+                source_piece.move_position(sx, sy)
+                self.board[dy][dx], self.board[sy][sx] = dest_piece, source_piece
+
+                if valid_move:
+                    return False
+
         return True
 
     def draw(self, screen):
-
+        """
+        Draws the board on the screen
+        :param screen: pygame screen object
+        :return: None
+        """
         for i in range(8):
             for j in range(8):
                 if self.board[i][j]:
                     self.board[i][j].draw(screen)
+
+    def print_board(self):
+        """
+        Prints the board to the console
+        :return: None
+        """
+
+        os.system('clear')
+
+        for i in range(8):
+            print(("-" * 39))
+            for j in range(8):
+                print(self.board[i][j] if self.board[i][j] else '  ', end=" | ")
+            print()
+        print(("-" * 39))
+        print('\n')
+
+    @staticmethod
+    def is_in_bounds(mx, my):
+        """
+        Checks if the coordinates are in bounds.
+        :param mx: int
+        :param my: int
+        :return: bool
+        """
+        return 0 <= mx < 8 and 0 <= my <= 8

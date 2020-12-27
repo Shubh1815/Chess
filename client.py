@@ -57,39 +57,54 @@ class Game:
         bg = pg.image.load('./assets/board.jpg')
         bg = pg.transform.scale(bg, (680, self.win_height))
 
-        timer = Label('TIME')
-        timer.config(
+        black_timer = Label('Black')
+        black_timer.config(
             color=(255, 255, 255),
             font_size=48
         )
 
-        time = Label('00:00')
-        time.config(
+        black_time = Label('15:00')
+        black_time.config(
             color=(255, 255, 255),
             font_size=32
         )
 
-        board = Board(680, 680)
+        white_timer = Label('White')
+        white_timer.config(
+            color=(255, 255, 255),
+            font_size=48
+        )
+
+        white_time = Label('15:00')
+        white_time.config(
+            color=(255, 255, 255),
+            font_size=32
+        )
+
+        board = Board()
 
         while True:
 
             self.win.blit(bg, (0, 0))
             pg.draw.rect(self.win, (1, 1, 1), (690, 0, 310, 680))
-            pg.draw.rect(self.win, (255, 0, 0), (690, 200, 310, 10))
 
-            timer.draw(self.win, 780, 20)
-            time.draw(self.win, 800, 100)
+            black_timer.draw(self.win, 780, 20)
+            black_time.draw(self.win, 800, 100)
 
-            board.draw(self.win)
+            pg.draw.rect(self.win, (255, 0, 0), (690, 150, 310, 10))  # Red Line
 
-            board_message = board.message.get_rect()
-            board_message.center = (680 + 160, 250)
+            board_message1 = board.message1.get_rect()
+            board_message1.center = (680 + 160, 200)
+            board.message1.draw(self.win, board_message1.x, board_message1.y)
 
-            board_message_victory = board.message_victory.get_rect()
-            board_message_victory.center = (680 + 160, 300)
+            board_message2 = board.message2.get_rect()
+            board_message2.center = (680 + 160, 250)
+            board.message2.draw(self.win, board_message2.x, board_message2.y)
 
-            board.message.draw(self.win, board_message.x, board_message.y)
-            board.message_victory.draw(self.win, board_message_victory.x, board_message_victory.y)
+            pg.draw.rect(self.win, (255, 0, 0), (690, 530, 310, 10))  # Red Line
+
+            white_timer.draw(self.win, 780, 550)
+            white_time.draw(self.win, 800, 630)
 
             if not board.turn:
                 self.call_ai(board)
@@ -102,26 +117,27 @@ class Game:
                     mx, my = event.pos
 
                     if board.turn:
-                        board.clicked(mx, my)
-                        pg.display.update()
+                        board.select(mx // 85, my // 85)
+
+            board.draw(self.win)
+
+            if board.game_over:
+                board.message1.change_text('Check Mate')
+                board.message2.change_text(f'{"Black" if board.turn == 1 else "White"} Wins')
+            elif board.check:
+                board.message1.change_text('Check')
 
             pg.display.update()
+
+    @staticmethod
+    def call_ai(board):
+        if not board.game_over and not board.turn:
+            get_best_move(board, board.turn)
 
     @staticmethod
     def quit():
         pg.quit()
         sys.exit()
-
-    @staticmethod
-    def call_ai(board):
-        if not board.turn and not board.game_over:
-            board.selected_piece = None
-            i, j = get_best_move(board, board.turn)
-            si, sj = board.selected_piece
-            print(board.clicked(j, i, ai=True))
-            print(board.checked)
-            print((si, sj), 'to', (i, j))
-            # board.turn = 1
 
 
 if __name__ == '__main__':

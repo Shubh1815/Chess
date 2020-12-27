@@ -6,7 +6,12 @@ class King(Piece):
     def __init__(self, color, py, px):
         super().__init__('K', color, py, px)
 
-    def get_possible_moves(self, board):
+    def get_moves(self, board):
+        """
+        Returns the moves of all possible moves of king
+        :param board: 8 X 8 Array
+        :return: set of possible move
+        """
         i, j = self.py, self.px
         all_possible_moves = set()
 
@@ -27,65 +32,35 @@ class King(Piece):
                 all_possible_moves.add((x, y))
         return all_possible_moves
 
-    def move(self, board, dy, dx, reverse=False):
-        if reverse:
-            board[dy][dx] = self
-            board[self.py][self.px] = 0
-
-            self.px = dx
-            self.py = dy
-
-            return True
-
-        all_possible_moves = self.get_possible_moves(board)
-
-        if (dy, dx) in all_possible_moves:
-
-            new_place = board[dy][dx]
-            prev_px, prev_py = self.px, self.py
-
-            board[dy][dx] = self
-            board[self.py][self.px] = 0
-
-            self.px = dx
-            self.py = dy
-
-            # If moving to the new place does not give check to our king
-            if not self.is_check(board):
-                return True
-
-            self.px = prev_px
-            self.py = prev_py
-            board[dy][dx] = new_place
-            board[self.py][self.px] = self
-
-        return False
-
     def check_pawn(self, board):
-
+        """
+        Checks if the king is attacked by opponent's pawn
+        :param board: 8 X 8 Array
+        :return: bool
+        """
         i, j = self.py, self.px
 
-        if self.color == 'white':
+        if self.color == 'w':
             try:
-                if board[i - 1][j - 1].name == 'pawn' and board[i - 1][j - 1].color != self.color:
+                if board[i - 1][j - 1].name == 'P' and board[i - 1][j - 1].color != self.color:
                     return True
             except (IndexError, AttributeError):
                 pass
 
             try:
-                if board[i - 1][j + 1].name == 'pawn' and board[i - 1][j + 1].color != self.color:
+                if board[i - 1][j + 1].name == 'P' and board[i - 1][j + 1].color != self.color:
                     return True
             except (IndexError, AttributeError):
                 pass
         else:
             try:
-                if board[i + 1][j - 1].name == 'pawn' and board[i + 1][j - 1].color != self.color:
+                if board[i + 1][j - 1].name == 'P' and board[i + 1][j - 1].color != self.color:
                     return True
             except (IndexError, AttributeError):
                 pass
 
             try:
-                if board[i + 1][j + 1].name == 'pawn' and board[i + 1][j + 1].color != self.color:
+                if board[i + 1][j + 1].name == 'P' and board[i + 1][j + 1].color != self.color:
                     return True
             except (IndexError, AttributeError):
                 pass
@@ -93,6 +68,11 @@ class King(Piece):
         return False
 
     def check_knight(self, board):
+        """
+        Checks if the king is attacked by opponent's Knight
+        :param board: 8 X 8 Array
+        :return: bool
+        """
 
         i, j = self.py, self.px
 
@@ -110,11 +90,16 @@ class King(Piece):
 
         for x, y in knight_steps:
             if 0 <= x < 8 and 0 <= y < 8 and board[x][y]:
-                if board[x][y].color != self.color and board[x][y].name == 'knight':
+                if board[x][y].color != self.color and board[x][y].name == 'N':
                     return True
         return False
 
     def check_row_col(self, board):
+        """
+        Checks if the king is attacked by opponent's queen or rook
+        :param board: 8 x 8 Array
+        :return: bool
+        """
         i = self.py
         l = r = self.px
 
@@ -122,9 +107,9 @@ class King(Piece):
             l -= 1
             if board[i][l]:
                 if board[i][l].color != self.color:
-                    if board[i][l].name in ('queen', 'rook'):
+                    if board[i][l].name in ('Q', 'R'):
                         return True
-                    if abs(self.px - l) == 1 and board[i][l].name == 'king':
+                    if abs(self.px - l) == 1 and board[i][l].name == 'K':
                         return True
                 break
 
@@ -132,9 +117,9 @@ class King(Piece):
             r += 1
             if board[i][r]:
                 if board[i][r].color != self.color:
-                    if board[i][r].name in ('queen', 'rook'):
+                    if board[i][r].name in ('Q', 'R'):
                         return True
-                    if abs(self.px - r) == 1 and board[i][r].name == 'king':
+                    if abs(self.px - r) == 1 and board[i][r].name == 'K':
                         return True
                 break
 
@@ -145,9 +130,9 @@ class King(Piece):
             u -= 1
             if board[u][j]:
                 if board[u][j].color != self.color:
-                    if board[u][j].name in ('queen', 'rook'):
+                    if board[u][j].name in ('Q', 'R'):
                         return True
-                    if abs(self.py - u) == 1 and board[u][j].name == 'king':
+                    if abs(self.py - u) == 1 and board[u][j].name == 'K':
                         return True
                 break
 
@@ -155,15 +140,20 @@ class King(Piece):
             d += 1
             if board[d][j]:
                 if board[d][j].color != self.color:
-                    if board[d][j].name in ('queen', 'rook'):
+                    if board[d][j].name in ('Q', 'R'):
                         return True
-                    if abs(self.py - d) == 1 and board[d][j].name == 'king':
+                    if abs(self.py - d) == 1 and board[d][j].name == 'K':
                         return True
                 break
 
         return False
 
     def check_diagonal(self, board):
+        """
+        Checks if the king is attacked by opponent's queen or bishop
+        :param board:
+        :return: bool
+        """
         i, j = self.py, self.px
 
         # Upper Left
@@ -172,9 +162,9 @@ class King(Piece):
             j -= 1
             if board[i][j]:
                 if board[i][j].color != self.color:
-                    if board[i][j].name in ('queen', 'bishop'):
+                    if board[i][j].name in ('Q', 'B'):
                         return True
-                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'king':
+                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'K':
                         return True
                 break
 
@@ -186,9 +176,9 @@ class King(Piece):
             j += 1
             if board[i][j]:
                 if board[i][j].color != self.color:
-                    if board[i][j].name in ('queen', 'bishop'):
+                    if board[i][j].name in ('Q', 'B'):
                         return True
-                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'king':
+                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'K':
                         return True
                 break
 
@@ -201,9 +191,9 @@ class King(Piece):
 
             if board[i][j]:
                 if board[i][j].color != self.color:
-                    if board[i][j].name in ('queen', 'bishop'):
+                    if board[i][j].name in ('Q', 'B'):
                         return True
-                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'king':
+                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'K':
                         return True
                 break
 
@@ -215,15 +205,20 @@ class King(Piece):
             j += 1
             if board[i][j]:
                 if board[i][j].color != self.color:
-                    if board[i][j].name in ('queen', 'bishop'):
+                    if board[i][j].name in ('Q', 'B'):
                         return True
-                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'king':
+                    if abs(self.px - j) == abs(self.py - i) == 1 and board[i][j].name == 'K':
                         return True
                 break
 
         return False
 
     def is_check(self, board):
+        """
+        Checks if the king is attacked by any opponent's piece
+        :param board: 8 x 8 Array
+        :return: bool
+        """
 
         if self.check_diagonal(board) or \
            self.check_row_col(board) or \

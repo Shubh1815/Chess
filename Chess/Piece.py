@@ -12,6 +12,11 @@ class Piece:
         self.selected = 0
 
     def move_row(self, board):
+        """
+        Returns possible moves in a row for a piece
+        :param board: 8 x 8 Array
+        :return: set of moves possible
+        """
         all_possible_move = set()
 
         i = self.py
@@ -38,6 +43,11 @@ class Piece:
         return all_possible_move
 
     def move_col(self, board):
+        """
+        Returns possible moves in a col for a piece
+        :param board: 8 x 8 Array
+        :return: set of moves possible
+        """
         all_possible_move = set()
 
         u = d = self.py
@@ -64,6 +74,11 @@ class Piece:
         return all_possible_move
 
     def move_diagonal(self, board):
+        """
+        Returns possible moves in diagonals for a piece
+        :param board: 8 x 8 Array
+        :return: set of moves possible
+        """
 
         all_possible_move = set()
 
@@ -122,20 +137,25 @@ class Piece:
 
         return all_possible_move
 
-    def select(self, mx, my):
-        if (self.px, self.py) == (mx, my):
-            self.selected ^= 1
-        else:
-            self.selected = 0
+    def select(self):
+        self.selected ^= 1
+
+    def move_position(self, mx, my):
+        self.px = mx
+        self.py = my
 
     def draw(self, screen):
-
+        """
+        Draws a piece to the screen
+        :param screen: Pygame screen object
+        :return: None
+        """
         x = self.px * 85
         y = self.py * 85
 
         # Highlight the block if selected
         if self.selected:
-            pg.draw.rect(screen, (255,214,107), (x, y, 85, 85))
+            pg.draw.rect(screen, (255, 214, 107), (x, y, 85, 85))
 
         img = pg.image.load(f'./assets/pieces/{self}.png')
         img = pg.transform.scale(img, (85, 85))
@@ -143,4 +163,4 @@ class Piece:
         screen.blit(img, (x, y))
 
     def __str__(self):
-        return f"{self.color[0]}{self.name}"
+        return f"{self.color}{self.name}"

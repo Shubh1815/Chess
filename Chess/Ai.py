@@ -1,123 +1,235 @@
 import random
-import pygame
-color = ['black', 'white']
 
-piece_points = {
-    '0': 0,
-    'black-pawn': -10,
-    'white-pawn': 10,
-    'black-knight': -30,
-    'white-knight': 30,
-    'black-bishop': -30,
-    'white-bishop': 30,
-    'black-rook': -50,
-    'white-rook': 50,
-    'black-queen': -90,
-    'white-queen': 90,
-    'black-king': -1000,
-    'white-king': 1000,
+# Thanks to freecodecamp
+placement_points = {
+    'w': {
+        'P':[
+            [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+            [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
+            [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
+            [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
+            [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
+            [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
+            [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
+            [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+        ],
+        'N': [
+            [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+            [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
+            [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
+            [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
+            [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
+            [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
+            [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
+            [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+        ],
+        'B': [
+            [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+            [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+            [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
+            [ -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
+            [ -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
+            [ -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
+            [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
+            [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+        ],
+        'R': [
+            [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+            [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+        ],
+        'Q':[
+            [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+            [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+            [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+            [ -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+            [  0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+            [ -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+            [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
+            [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+        ],
+        'K': [
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+            [ -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+            [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
+            [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+        ]
+    },
+    'b': {
+        'P':[
+            [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+            [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
+            [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
+            [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
+            [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
+            [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
+            [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
+            [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+        ][::-1],
+        'N': [
+            [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+            [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
+            [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
+            [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
+            [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
+            [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
+            [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
+            [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+        ][::-1],
+        'B': [
+            [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+            [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+            [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
+            [ -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
+            [ -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
+            [ -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
+            [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
+            [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+        ][::-1],
+        'R': [
+            [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+            [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
+            [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+        ][::-1],
+        'Q': [
+            [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+            [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+            [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+            [ -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+            [  0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+            [ -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+            [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
+            [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+        ][::-1],
+        'K': [
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+            [ -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+            [ -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+            [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
+            [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+        ][::-1]
+    }
 }
 
+piece_points = {
+    'None': 0,
+    'P': 10,
+    'R': 50,
+    'N': 30,
+    'B': 30,
+    'Q': 90,
+    'K': 900,
+}
+
+color = ['w', 'b']
 INF = float('inf')
 
 
-def minmax(board, depth, alpha, beta):
-
-    previous_turn = (depth + 1) & 1
-    turn = depth & 1
-
-    if board.game_over:
-        if previous_turn:
-            return -1500
-        return 1500
-
-    if not depth:
-        return 0
-
-    points = INF if turn else -INF
-
+def evaluate_board(board):
+    total_value = 0
     for i in range(8):
         for j in range(8):
-            if board.board[i][j] and board.board[i][j].color == color[turn]:
-                next_moves = board.board[i][j].get_possible_moves(board.board)
+            if not board[i][j]:
+                continue
+            p_color, typ = str(board[i][j])
+            add = piece_points[typ] + placement_points[p_color][typ][j][i]
+            if p_color == 'w':
+                # If white then it will try to minimize the total_value
+                add *= -1
+            total_value += add
 
-                for ni, nj in list(next_moves):
-                    captured_piece = board.board[ni][nj]
-                    captured_points = piece_points[str(captured_piece)]
+    return total_value
 
-                    board.selected_piece = (i, j)
-                    # board.board[i][j].select(j, i)
-                    stop = False
 
-                    if board.clicked(nj, ni, ai=True):
-                        if not turn:
-                            # Maximizing
-                            points = max(points, minmax(board, depth - 1, alpha, beta) + captured_points + board.checked * 50)
-                            alpha = max(alpha, points)
-                            if alpha >= beta:
-                                stop = True
-                        else:
-                            # Minimizing
-                            points = min(points, minmax(board, depth - 1, alpha, beta) + captured_points - board.checked * 50)
-                            beta = min(points, beta)
-                            if beta <= alpha:
-                                stop = True
+def minimax(board, depth, alpha, beta):
 
-                        board.checked = False
-                        board.game_over = False
+    turn = depth & 1  # If even then black's turn else white
 
-                        board.board[ni][nj].move(board.board, i, j, reverse=True)
-                        board.board[ni][nj] = captured_piece
+    if not depth:
+        return evaluate_board(board.board)
 
-                        if stop:
-                            return points
+    points = -INF if turn else INF
+    moves = board.get_moves(color[turn])
 
-                    board.selected_piece = None
-                    # board.board[i][j].select(j, i)
+    for sy, sx in moves:
+        for dy, dx in moves[(sy, sx)]:
+            if board.is_move_possible((sy, sx), (dy, dx)):
+                captured_piece = board.move((sy, sx), (dy, dx))
+                stop = False
+                if turn:
+                    # Maximizing
+                    points = max(points, minimax(board, depth - 1, alpha, beta))
+                    alpha = max(alpha, points)
+                    if alpha >= beta:
+                        stop = True
+                else:
+                    # Minimizing
+                    points = min(points, minimax(board, depth - 1, alpha, beta))
+                    beta = min(points, beta)
+                    if alpha >= beta:
+                        stop = True
+
+                board.check = False
+                board.game_over = False
+                board.move((dy, dx), (sy, sx))
+                board.board[dy][dx] = captured_piece
+
+                if stop:
+                    return points
 
     return points
 
 
-def get_best_move(game, turn):
-
-    moves = {}
-
-    board = game.board
+def get_best_move(board, turn):
+    turn ^= 1
     points = -INF
 
-    piece = (-1, -1)
-    next_move = (-1, -1)
+    source = (-1, -1)
+    dest = (-1, -1)
 
-    for i in range(8):
-        for j in range(8):
-            if board[i][j] and board[i][j].color == color[turn]:
+    moves = board.get_moves(color[turn])
 
-                next_moves = board[i][j].get_possible_moves(board)
+    for sy, sx in moves:
+        for dy, dx in moves[(sy, sx)]:
+            if board.is_move_possible((sy, sx), (dy, dx)):
+                captured_piece = board.move((sy, sx), (dy, dx))
 
-                for ni, nj in list(next_moves):
-                    game.selected_piece = (i, j)
-                    # board[i][j].select(j, i)
+                res_points = minimax(board, 2, -INF, INF)
 
-                    captured_piece = board[ni][nj]
-                    captured_points = piece_points[str(captured_piece)]
+                if res_points > points:
+                    points = res_points
 
-                    if game.clicked(nj, ni, ai=True):
-                        res_points = minmax(game, 3, -INF, INF) + captured_points + game.checked * 50
+                    source = (sy, sx)
+                    dest = (dy, dx)
 
-                        board[ni][nj].move(board, i, j, reverse=True)
-                        board[ni][nj] = captured_piece
+                board.move((dy, dx), (sy, sx))
+                board.board[dy][dx] = captured_piece
 
-                        if res_points > points:
-                            points = res_points
-                            piece = (i, j)
-                            next_move = (ni, nj)
+    board.move(source, dest)
 
-                        game.checked = False
-                        game.game_over = False
 
-                    game.selected_piece = None
-                    # board[i][j].select(j, i)
+def get_best_move_random(board, turn):
+    source = (-1, -1)
+    next_moves = board.get_moves(color[turn])
 
-    board[piece[0]][piece[1]].select(piece[1], piece[0])
-    game.selected_piece = piece
-    return next_move
+    while source not in next_moves or not next_moves[source]:
+        source = random.choice(list(next_moves.keys()))
+    dest = random.choice(list(next_moves[source]))
+    board.move(source, dest)
