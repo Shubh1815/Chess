@@ -30,7 +30,7 @@ def recv_board(conn):
         except pickle.UnpicklingError:
             packet = conn.recv(4096)
 
-    return pickle.loads(b"".join(board))
+    return b"".join(board)
 
 
 def handle_clients(player_conn, opponent_conn, white_cid, black_cid, color):
