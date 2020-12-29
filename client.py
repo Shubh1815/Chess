@@ -14,10 +14,19 @@ class Network:
         self.client.send(board)
 
     def recv_board(self):
-        board = self.client.recv(4096)
-        board = pickle.loads(board)
+        board = []
+        packet = self.client.recv(4096)
+        while True:
+            if not packet:
+                break
+            board.append(packet)
+            try:
+                pickle.loads(b"".join(board))
+                break
+            except pickle.UnpicklingError:
+                packet = self.client.recv(4096)
 
-        return board
+        return pickle.loads(b"".join(board))
 
     def send(self, data):
         self.client.send(data.encode())

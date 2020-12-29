@@ -17,6 +17,22 @@ games = {}
 lock = Lock()
 
 
+def recv_board(conn):
+    board = []
+    packet = conn.recv(4096)
+    while True:
+        if not packet:
+            break
+        board.append(packet)
+        try:
+            pickle.loads(b"".join(board))
+            break
+        except pickle.UnpicklingError:
+            packet = conn.recv(4096)
+
+    return pickle.loads(b"".join(board))
+
+
 def handle_clients(player_conn, opponent_conn, white_cid, black_cid, color):
     if color == 'w':
         print(f'[ STATUS ] Starting match between {white_cid} & {black_cid}')
@@ -29,7 +45,7 @@ def handle_clients(player_conn, opponent_conn, white_cid, black_cid, color):
     player_conn.send(pickle.dumps(game_board))
 
     while not game_board.game_over:
-        p_game_board = player_conn.recv(4096)
+        p_game_board = recv_board(player_conn)
 
         if p_game_board:
             game_board = pickle.loads(p_game_board)
