@@ -5,7 +5,7 @@ import socket
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = '54.147.30.202'
+        self.host = 'localhost'
         self.port = 5000
         self.addr = (self.host, self.port)
 
@@ -23,7 +23,7 @@ class Network:
         self.client.send(data.encode())
 
     def recv(self):
-        return self.client.recv(1024).decode()
+        return self.client.recv(1024).decode('utf-8')
 
     def connect(self):
         self.client.connect(self.addr)
