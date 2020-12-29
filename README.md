@@ -19,6 +19,14 @@ Then simply run game.py.
 
 ![](assets/game.gif)
 
+## To play the game online.
+For Online mode you will have to change some code in "client.py"
+
+1) You have to host "server.py" on some server.
+2) Change **self.host** in client.py to the public IP of your server.
+3) Open two instances of the game, from anywhere and play.
+
+
 ## Known Issues
 
 * Stalemate
