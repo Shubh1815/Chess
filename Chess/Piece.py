@@ -144,23 +144,5 @@ class Piece:
         self.px = mx
         self.py = my
 
-    def draw(self, screen):
-        """
-        Draws a piece to the screen
-        :param screen: Pygame screen object
-        :return: None
-        """
-        x = self.px * 85
-        y = self.py * 85
-
-        # Highlight the block if selected
-        if self.selected:
-            pg.draw.rect(screen, (255, 214, 107), (x, y, 85, 85))
-
-        img = pg.image.load(f'./assets/pieces/{self}.png')
-        img = pg.transform.scale(img, (85, 85))
-
-        screen.blit(img, (x, y))
-
     def __str__(self):
         return f"{self.color}{self.name}"

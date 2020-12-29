@@ -171,7 +171,7 @@ def minimax(board, depth, alpha, beta):
     for sy, sx in moves:
         for dy, dx in moves[(sy, sx)]:
             if board.is_move_possible((sy, sx), (dy, dx)):
-                captured_piece = board.move((sy, sx), (dy, dx))
+                captured_piece = board.move((sy, sx), (dy, dx), history=False)
                 stop = False
                 if turn:
                     # Maximizing
@@ -188,7 +188,7 @@ def minimax(board, depth, alpha, beta):
 
                 board.check = False
                 board.game_over = False
-                board.move((dy, dx), (sy, sx))
+                board.move((dy, dx), (sy, sx), history=False)
                 board.board[dy][dx] = captured_piece
 
                 if stop:
@@ -209,7 +209,7 @@ def get_best_move(board, turn):
     for sy, sx in moves:
         for dy, dx in moves[(sy, sx)]:
             if board.is_move_possible((sy, sx), (dy, dx)):
-                captured_piece = board.move((sy, sx), (dy, dx))
+                captured_piece = board.move((sy, sx), (dy, dx), history=False)
 
                 res_points = minimax(board, 2, -INF, INF)
 
@@ -219,7 +219,7 @@ def get_best_move(board, turn):
                     source = (sy, sx)
                     dest = (dy, dx)
 
-                board.move((dy, dx), (sy, sx))
+                board.move((dy, dx), (sy, sx), history=False)
                 board.board[dy][dx] = captured_piece
 
     board.move(source, dest)

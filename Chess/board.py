@@ -1,11 +1,11 @@
 import os
+from collections import deque
 from .King import King
 from .Queen import Queen
 from .Bishop import Bishop
 from .Knight import Knight
 from .Rook import Rook
 from .Pawn import Pawn
-from utils import Label
 
 
 class Board:
@@ -64,13 +64,10 @@ class Board:
         self.king = [self.board[0][4], self.board[7][4]]  # To check for "Checks" after every move
 
         self.check = False
+        self.check_mate = False
         self.game_over = False
 
-        self.message1 = Label('')  # For check messages
-        self.message1.config(color=(255, 255, 255), font_size=48)
-
-        self.message2 = Label('')  # For Victory messages
-        self.message2.config(color=(255, 255, 255), font_size=32)
+        self.history = deque([], 5)
 
     def get_moves(self, color):
         """
@@ -108,8 +105,6 @@ class Board:
                     self.selected = None
         else:
             if self.is_move_possible(self.selected, (my, mx)):
-                self.message1.change_text('')
-                self.message2.change_text('')
 
                 self.move(self.selected, (my, mx))
                 self.print_board()
@@ -148,11 +143,12 @@ class Board:
 
         return is_valid_move
 
-    def move(self, source, dest):
+    def move(self, source, dest, history=True):
         """
         Moves a piece from source to dest
         :param source: Coordinates of source piece (int, int)
         :param dest: Coordinates of dest piece (int, int)
+        :param history: Whether to add this move to history (bool)
         :return: Captured Piece
         """
 
@@ -164,17 +160,18 @@ class Board:
         source_piece = self.board[sy][sx]
         dest_piece = self.board[dy][dx]
 
-        if dest_piece:
-            pass
-
         source_piece.move_position(dx, dy)
         self.board[dy][dx], self.board[sy][sx] = source_piece, None
+
+        if history:
+            self.history.append((self.turn, source, dest))
 
         self.turn ^= 1
 
         if self.in_check(self.turn):
             self.check = True
             if self.in_checkmate():
+                self.check_mate = True
                 self.game_over = True
 
         return dest_piece
@@ -230,17 +227,6 @@ class Board:
                     return False
 
         return True
-
-    def draw(self, screen):
-        """
-        Draws the board on the screen
-        :param screen: pygame screen object
-        :return: None
-        """
-        for i in range(8):
-            for j in range(8):
-                if self.board[i][j]:
-                    self.board[i][j].draw(screen)
 
     def print_board(self):
         """
