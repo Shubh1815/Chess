@@ -32,7 +32,7 @@ class Network:
         self.client.send(data.encode())
 
     def recv(self):
-        return self.client.recv(1024).decode('utf-8')
+        return self.client.recv(1024).decode('utf-16')
 
     def connect(self):
         self.client.connect(self.addr)
