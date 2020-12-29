@@ -5,7 +5,7 @@ from threading import Thread, Lock
 from Chess.board import Board
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host, port = 'localhost', 5000
+host, port = '', 5000
 
 server.bind((host, port))
 server.listen()
