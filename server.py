@@ -41,7 +41,7 @@ def handle_clients(player_conn, opponent_conn, white_cid, black_cid, color):
     game_board = games[(white_cid, black_cid)]
     lock.release()
 
-    player_conn.send(color.encode('utf-8'))
+    player_conn.send(color.encode('utf-16'))
     player_conn.send(pickle.dumps(game_board))
 
     while not game_board.game_over:
