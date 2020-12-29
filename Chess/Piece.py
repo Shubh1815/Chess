@@ -1,6 +1,3 @@
-import pygame as pg
-
-
 class Piece:
 
     def __init__(self, name, color, py, px):
