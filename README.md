@@ -19,7 +19,7 @@ Then simply run game.py.
 
 ![](assets/game.gif)
 
-## Issues
+## Known Issues
 
 * Stalemate
 * Castling
