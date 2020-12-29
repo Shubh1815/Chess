@@ -60,13 +60,18 @@ class Game:
 
             pg.display.update()
 
+    def loading_page(self):
+        self.win.fill((0, 0, 0))
+        loading = Label('Finding Player...')
+        loading.config(color=(255, 255, 255), font_size=40)
+        rect = loading.get_rect()
+        rect.center = 500, 320
+        loading.draw(self.win, rect.x, rect.y)
+        pg.display.update()
+
     def game_page(self, online=False):
 
-        self.win.fill((0, 0, 0))
-        loading = Label('LOADING...')
-        loading.config(color=(255, 255, 255), font_size=40)
-        loading.draw(self.win, 320, 320)
-        pg.display.update()
+        self.loading_page()
 
         self.win.fill((255, 0, 0))
 
