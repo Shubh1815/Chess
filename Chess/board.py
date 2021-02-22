@@ -69,6 +69,9 @@ class Board:
 
         self.history = deque([], 5)
 
+        self.black_time_elapsed = 0
+        self.white_time_elapsed = 0
+
     def get_moves(self, color):
         """
         Returns a dict of all moves possible of pieces of given color
@@ -107,7 +110,7 @@ class Board:
             if self.is_move_possible(self.selected, (my, mx)):
 
                 self.move(self.selected, (my, mx))
-                self.print_board()
+                # self.print_board()
 
                 # Unselect the moved piece
                 self.board[my][mx].select()

@@ -104,15 +104,14 @@ class Game:
 
         player = Network()
 
+        board = Board()
+        player_turn = 1
+
         if online:
             player.connect()
+            color = player.recv(13)
 
-            color = player.recv()
-            board = player.recv_board()
             player_turn = 1 if color == 'w' else 0
-        else:
-            board = Board()
-            player_turn = 1
 
         message1 = Label('')
         message1.config(color=(255, 255, 255), font_size=48)
@@ -120,16 +119,27 @@ class Game:
         message2 = Label('')
         message2.config(color=(255, 255, 255), font_size=32)
 
+        w_time = b_time = 900
+
         while True:
+
+            if online and not board.game_over:
+                board = player.get_board()
+                if board.turn == 1:
+                    w_time = 900 - board.white_time_elapsed
+                else:
+                    b_time = 900 - board.black_time_elapsed
 
             self.win.blit(bg, (0, 0))
 
             pg.draw.rect(self.win, (1, 1, 1), (690, 0, 310, 680))
 
-            black_timer.draw(self.win, 780, 20)
-            black_time.draw(self.win, 800, 100)
+            if online:
+                black_timer.draw(self.win, 780, 20)
+                black_time.change_text(f'{b_time // 60}:{ f"0{b_time % 60}" if b_time % 60 < 10 else b_time % 60}')
+                black_time.draw(self.win, 800, 100)
 
-            pg.draw.rect(self.win, (255, 0, 0), (690, 150, 310, 10))  # Red Line
+                pg.draw.rect(self.win, (255, 0, 0), (690, 150, 310, 10))  # Red Line
 
             board_message1 = message1.get_rect()
             board_message1.center = (680 + 160, 200)
@@ -139,10 +149,13 @@ class Game:
             board_message2.center = (680 + 160, 250)
             message2.draw(self.win, board_message2.x, board_message2.y)
 
-            pg.draw.rect(self.win, (255, 0, 0), (690, 530, 310, 10))  # Red Line
+            if online:
 
-            white_timer.draw(self.win, 780, 550)
-            white_time.draw(self.win, 800, 630)
+                pg.draw.rect(self.win, (255, 0, 0), (690, 530, 310, 10))  # Red Line
+
+                white_timer.draw(self.win, 780, 550)
+                white_time.change_text(f'{w_time // 60}:{ f"0{w_time % 60}" if w_time % 60 < 10 else w_time % 60}')
+                white_time.draw(self.win, 800, 630)
 
             if not online and not board.turn:
                 self.call_ai(board)
@@ -159,9 +172,9 @@ class Game:
 
                 if event.type == pg.MOUSEBUTTONDOWN:
                     mx, my = event.pos
-
                     if board.turn == player_turn and not board.game_over:
                         board.select(mx // 85, my // 85)
+
                         if online:
                             player.send_board(board)
 
@@ -176,13 +189,21 @@ class Game:
                 history.config(color=(240, 240, 240) if turn == 1 else (57, 62, 70), font_size=24)
                 history.draw(self.win, 810, 280 + (i * 40))
 
-            if board.game_over and board.check_mate:
+            if w_time == 0 or b_time == 0:
+                board.game_over = True
+                message1.change_text("Time's Up")
+                message2.change_text(f'{"Black" if board.turn == 1 else "White"} Wins')
+                if online:
+                    player.disconnect()
+            elif board.game_over and board.check_mate:
                 message1.change_text('Check Mate')
                 message2.change_text(f'{"Black" if board.turn == 1 else "White"} Wins')
-                player.disconnect()
+                if online:
+                    player.disconnect()
             elif board.game_over:
                 message2.change_text('Other Player Left')
-                player.disconnect()
+                if online:
+                    player.disconnect()
             elif board.check:
                 message1.change_text('Check')
             else:
@@ -190,9 +211,6 @@ class Game:
                 message2.change_text('')
 
             pg.display.update()
-
-            if online and board.turn != player_turn and not board.game_over:
-                board = player.recv_board()
 
     def draw(self, board):
         for i in range(8):
