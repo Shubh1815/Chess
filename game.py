@@ -78,6 +78,19 @@ class Game:
         bg = pg.image.load('./assets/board.jpg')
         bg = pg.transform.scale(bg, (680, self.win_height))
 
+        computer = Label('Computer')
+        computer.config(
+            color=(57, 62, 70),
+            font_size=54
+        )
+
+        user = Label('User')
+        user.config(
+            color=(240, 240, 240),
+            font_size=54
+        )
+
+
         black_timer = Label('Black')
         black_timer.config(
             color=(57, 62, 70),
@@ -138,8 +151,10 @@ class Game:
                 black_timer.draw(self.win, 780, 20)
                 black_time.change_text(f'{b_time // 60}:{ f"0{b_time % 60}" if b_time % 60 < 10 else b_time % 60}')
                 black_time.draw(self.win, 800, 100)
+            else:
+                computer.draw(self.win, 750, 20)
 
-                pg.draw.rect(self.win, (255, 0, 0), (690, 150, 310, 10))  # Red Line
+            pg.draw.rect(self.win, (255, 0, 0), (690, 150, 310, 10))  # Red Line
 
             board_message1 = message1.get_rect()
             board_message1.center = (680 + 160, 200)
@@ -149,13 +164,14 @@ class Game:
             board_message2.center = (680 + 160, 250)
             message2.draw(self.win, board_message2.x, board_message2.y)
 
+            pg.draw.rect(self.win, (255, 0, 0), (690, 530, 310, 10))  # Red Line
+
             if online:
-
-                pg.draw.rect(self.win, (255, 0, 0), (690, 530, 310, 10))  # Red Line
-
                 white_timer.draw(self.win, 780, 550)
                 white_time.change_text(f'{w_time // 60}:{ f"0{w_time % 60}" if w_time % 60 < 10 else w_time % 60}')
                 white_time.draw(self.win, 800, 630)
+            else:
+                user.draw(self.win, 790, 550)
 
             if not online and not board.turn:
                 self.call_ai(board)
