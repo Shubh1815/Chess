@@ -17,7 +17,7 @@ Then simply run game.py.
     $ python3 game.py
 ```
 
-![](assets/game.gif)
+![](assets/g.gif)
 
 ## To play the game online.
 For Online mode you will have to change some code in "client.py"
