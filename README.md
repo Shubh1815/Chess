@@ -33,7 +33,6 @@ For Online mode you will have to change some code in "client.py"
 * Castling
 * Pawn Promotion
 * En Passant
-* Timer
 
 ## Dependencies
 
